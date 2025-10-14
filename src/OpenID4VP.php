@@ -63,3 +63,4 @@ class Universal_OpenID4VP {
     public function upgrade() {
     }
 }
+

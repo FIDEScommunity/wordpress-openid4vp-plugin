@@ -9,47 +9,18 @@
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
-// do a session a start
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
-// Retrieve the presentation response
-$presentationResponse = isset($_SESSION['presentationResponse']) ? $_SESSION['presentationResponse'] : null;
-$presentationStatusUri = isset($_SESSION['presentationStatusUri']) ? $_SESSION['presentationStatusUri'] : null;
 
-if (!empty($_SESSION['successUrl']) && !empty($presentationStatusUri)) {
-    $headers = array('Content-Type' => 'application/json');
-    if (isset($_SESSION['accessToken'])) {
-        $headers['Authorization'] = 'Bearer ' . $_SESSION['accessToken'];
-    }
+// Get correlation_id from URL parameter
+$correlationId = isset($_GET['oid4vp_cid']) ? sanitize_text_field($_GET['oid4vp_cid']) : null;
 
-    $response = wp_remote_get( $presentationStatusUri, array(
-        'headers' => $headers,
-        'timeout'     => 45,
-        'redirection' => 5,
-        'blocking'    => true
-    ));
 
-    $body = wp_remote_retrieve_body($response);
-
-    error_log('Result: '. $body);
-
-    $successUrl = null;
-    if ( json_decode( $body ) != null ) {
-        $response = json_decode( $body, true);
-        $credentialClaims = $response['verified_data']['credential_claims'];
-        foreach ($credentialClaims as $credential) {
-            if (empty($_SESSION['presentationResponse'])) {
-                $_SESSION['presentationResponse'] = [];
-            }
-            $_SESSION['presentationResponse'][$credential['id']] = $credential;
-        }
-        $presentationResponse = isset($_SESSION['presentationResponse']) ? $_SESSION['presentationResponse'] : null;
-
-        $_SESSION['accessToken'] = null;
-        $_SESSION['successUrl'] = null;
-    }
+// Retrieve presentation data from transient
+$presentationResponse = null;
+if ($correlationId) {
+    $presentationResponse = get_transient('oid4vp_presentation_' . $correlationId);
+} else {
+    error_log('OID4VP render.php: No correlation_id in URL, cannot retrieve data');
 }
 
 if (!empty($presentationResponse) && isset($attributes['attributeName'])) {
@@ -58,6 +29,7 @@ if (!empty($presentationResponse) && isset($attributes['attributeName'])) {
     // Check if the credential type exists in the presentation response
     if (isset($attributes['credentialQueryId']) && isset($presentationResponse[$attributes['credentialQueryId']])) {
         $result = $presentationResponse[$attributes['credentialQueryId']];
+
         foreach ($jsonAttributeNames as &$name) {
             // Check if the attribute exists before accessing it
             if (isset($result[$name])) {
@@ -71,8 +43,15 @@ if (!empty($presentationResponse) && isset($attributes['attributeName'])) {
         // $arr is now array(2, 4, 6, 8)
         unset($name);
 
-        $block_content = '<p ' . get_block_wrapper_attributes() . '>' . $attributes['attributeLabel'] . ': ' . $result . '</p>';
+        // Check if result is a base64 image data URI
+        if (is_string($result) && preg_match('/^data:image\/(jpeg|jpg|png|gif|webp);base64,/', $result)) {
+            $block_content = '<div ' . get_block_wrapper_attributes() . '><img src="' . esc_attr($result) . '" alt="' . esc_attr($attributes['attributeLabel']) . '" /></div>';
+        } else {
+            $block_content = '<p ' . get_block_wrapper_attributes() . '>' . $attributes['attributeLabel'] . ': ' . $result . '</p>';
+        }
 
         echo $block_content;
+    } else {
+        error_log('OID4VP render.php: credentialQueryId=' . ($attributes['credentialQueryId'] ?? 'NOT SET') . ' not found in presentation data');
     }
 }
