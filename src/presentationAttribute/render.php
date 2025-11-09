@@ -36,9 +36,11 @@ if (!empty($_SESSION['successUrl']) && !empty($presentationStatusUri)) {
     error_log('Result: '. $body);
 
     $successUrl = null;
-    if ( json_decode( $body ) != null ) {
-        $response = json_decode( $body, true);
-        $credentialClaims = $response['verified_data']['credential_claims'];
+
+    $statusResponse = json_decode( $body, true);
+
+    if ( $statusResponse['status'] === 'authorization_response_verified'  ) {
+        $credentialClaims = $statusResponse['verified_data']['credential_claims'];
         foreach ($credentialClaims as $credential) {
             if (empty($_SESSION['presentationResponse'])) {
                 $_SESSION['presentationResponse'] = [];
