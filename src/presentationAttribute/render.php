@@ -73,6 +73,13 @@ if (!empty($presentationResponse) && isset($attributes['attributeName'])) {
         // $arr is now array(2, 4, 6, 8)
         unset($name);
 
+        $label = trim($attributes['attributeLabel']);
+        if ($label !== '') {
+            $block_content = '<p ' . get_block_wrapper_attributes() . '>' . esc_html($label) . ': ' . esc_html($result) . '</p>';
+        } else {
+            $block_content = '<p ' . get_block_wrapper_attributes() . '>' . esc_html($result) . '</p>';
+        }
+
         $block_content = '<p ' . get_block_wrapper_attributes() . '>' . $attributes['attributeLabel'] . ': ' . $result . '</p>';
 
         echo $block_content;
