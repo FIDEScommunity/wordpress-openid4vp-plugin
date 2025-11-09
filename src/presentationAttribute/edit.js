@@ -87,7 +87,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p {...useBlockProps()}>{attributeLabel}</p>
+			<p {...useBlockProps()}>{attributeLabel ? attributeLabel + ': ' : ''}&lt;{credentialQueryId}.{attributeName}&gt;</p>
 		</>
 	);
 }

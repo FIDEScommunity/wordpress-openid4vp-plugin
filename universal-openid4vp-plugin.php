@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Universal OID4VP
  * Description:       Retrieve verifiable presentations
- * Version:           0.3.0
+ * Version:           0.6.0
  * Requires at least: 6.6
  * Requires PHP:      7.2
  * Author:            Credenco
@@ -131,10 +131,10 @@ function universal_openid4vp_ajax_poll_status() {
     $body = wp_remote_retrieve_body($response);
     //$result = json_decode( $body );
     $successUrl = null;
-    if ( json_decode( $body ) != null ) {
-        $successUrl = $_SESSION['successUrl'];
+    $presentationResponse = json_decode( $body, true);
 
-        $presentationResponse = json_decode( $body, true);
+    if ( $presentationResponse['status'] === 'authorization_response_verified'  ) {
+        $successUrl = $_SESSION['successUrl'];
 
         error_log($body);
 
@@ -257,7 +257,7 @@ function universal_openid4vp_sendVpRequest($attributes) {
     if (array_key_exists('responseMode', $attributes)) {
         $body['response_mode'] = $attributes['responseMode'];
     }
-    if (array_key_exists('successUrl', $attributes)) {
+    if (array_key_exists('successUrl', $attributes) && !(isset($attributes['qrCodeEnabled']) && $attributes['qrCodeEnabled'])) {
         $body['direct_post_response_redirect_uri'] = $attributes['successUrl'];
     }
     if (isset($attributes['qrCodeEnabled']) && $attributes['qrCodeEnabled']) {

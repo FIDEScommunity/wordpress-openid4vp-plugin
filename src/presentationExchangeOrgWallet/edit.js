@@ -104,6 +104,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				/>
 				<TextControl
 					label="API client secret"
+					type="password"
 					value={apiClientSecret}
 					onChange={( value ) =>
 						setAttributes( { apiClientSecret: value } )

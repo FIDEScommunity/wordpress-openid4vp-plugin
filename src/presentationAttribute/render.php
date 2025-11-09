@@ -36,9 +36,11 @@ if (!empty($_SESSION['successUrl']) && !empty($presentationStatusUri)) {
     error_log('Result: '. $body);
 
     $successUrl = null;
-    if ( json_decode( $body ) != null ) {
-        $response = json_decode( $body, true);
-        $credentialClaims = $response['verified_data']['credential_claims'];
+
+    $statusResponse = json_decode( $body, true);
+
+    if ( $statusResponse['status'] === 'authorization_response_verified'  ) {
+        $credentialClaims = $statusResponse['verified_data']['credential_claims'];
         foreach ($credentialClaims as $credential) {
             if (empty($_SESSION['presentationResponse'])) {
                 $_SESSION['presentationResponse'] = [];
@@ -70,6 +72,13 @@ if (!empty($presentationResponse) && isset($attributes['attributeName'])) {
         }
         // $arr is now array(2, 4, 6, 8)
         unset($name);
+
+        $label = trim($attributes['attributeLabel']);
+        if ($label !== '') {
+            $block_content = '<p ' . get_block_wrapper_attributes() . '>' . esc_html($label) . ': ' . esc_html($result) . '</p>';
+        } else {
+            $block_content = '<p ' . get_block_wrapper_attributes() . '>' . esc_html($result) . '</p>';
+        }
 
         $block_content = '<p ' . get_block_wrapper_attributes() . '>' . $attributes['attributeLabel'] . ': ' . $result . '</p>';
 
