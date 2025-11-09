@@ -83,7 +83,7 @@ class Universal_OpenID4VP_Admin_Settings {
                                 <tr valign="top">
                                     <th scope="row">API client secret</th>
                                     <td>
-                                        <input type="text" class="regular-text" name="<?php echo esc_html($this->option_name); ?>[apiClientSecret]" min="10"
+                                        <input type="password" class="regular-text" name="<?php echo esc_html($this->option_name); ?>[apiClientSecret]" min="10"
                                             value="<?php echo esc_html($this->admin_options->apiClientSecret); ?>"/>
                                     </td>
                                 </tr>
