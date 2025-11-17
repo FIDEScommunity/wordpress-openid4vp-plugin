@@ -80,8 +80,6 @@ if (!empty($presentationResponse) && isset($attributes['attributeName'])) {
             $block_content = '<p ' . get_block_wrapper_attributes() . '>' . esc_html($result) . '</p>';
         }
 
-        $block_content = '<p ' . get_block_wrapper_attributes() . '>' . $attributes['attributeLabel'] . ': ' . $result . '</p>';
-
         echo $block_content;
     }
 }
