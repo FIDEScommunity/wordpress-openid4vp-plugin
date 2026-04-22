@@ -114,7 +114,7 @@ class Universal_OpenID4VP_Admin_Settings {
                     </div>
                     <hr />
                     <p class="submit">
-                        <input type="submit" class="button-primary" value="<?php esc_html_e('Save Changes', 'universal-openid4vp-plugin') ?>"/>
+                        <input type="submit" class="button-primary" value="<?php esc_html_e('Save Changes', 'universal-openid4vp') ?>"/>
                     </p>
                     </form>
                 </div>

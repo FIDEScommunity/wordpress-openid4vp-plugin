@@ -54,11 +54,11 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'openid4vp-exchange' ) }>
+				<PanelBody title={ __( 'Settings', 'universal-openid4vp' ) }>
 					<TextControl
 						label={ __(
 							'Query id',
-							'openid4vp-exchange'
+							'universal-openid4vp'
 						) }
 						value={ queryId }
 						onChange={ ( value ) =>
@@ -68,7 +68,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __(
 							'Success url',
-							'openid4vp-exchange'
+							'universal-openid4vp'
 						) }
 						value={ successUrl }
 						onChange={ ( value ) =>
@@ -81,7 +81,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'OpenID4VP Endpoint',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ openidEndpoint }
 					onChange={ ( value ) =>
@@ -113,7 +113,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Client id',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ clientId }
 					onChange={ ( value ) =>
@@ -123,7 +123,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Request URI method',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ requestUriMethod }
 					onChange={ ( value ) =>
@@ -133,7 +133,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Response type',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ responseType }
 					onChange={ ( value ) =>
@@ -143,7 +143,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Response mode',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ responseMode }
 					onChange={ ( value ) =>
@@ -151,12 +151,21 @@ export default function Edit( { attributes, setAttributes } ) {
 					}
 				/>
 			</InspectorAdvancedControls>
-			<p {...useBlockProps()}>
+			<div {...useBlockProps()}>
 				<form id="org-wallet-form">
-					<input type="text" id="org-wallet-url" name="walletUrl" placeholder="Enter wallet URL" />
-					<button type="button" id="org-wallet-submit">Connect to wallet</button>
+					<label htmlFor="org-wallet-url">{ __( 'Wallet URL', 'universal-openid4vp' ) }</label>
+					<input
+						type="url"
+						id="org-wallet-url"
+						name="walletUrl"
+						placeholder="https://wallet.example.com"
+						required
+					/>
+					<button type="button" id="org-wallet-submit">
+						{ __( 'Connect to wallet', 'universal-openid4vp' ) }
+					</button>
 				</form>
-			</p>
+			</div>
 		</>
 	);
 }
