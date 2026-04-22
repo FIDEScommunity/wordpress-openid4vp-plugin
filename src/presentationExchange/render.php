@@ -10,10 +10,12 @@ $result = $response["result"];
 
 do_action( 'wp_enqueue_script' );
 
-$qr_content = $attributes['qrCodeEnabled']
-    ? '<img id="openid4vp_qrImage" alt="" src="data:' . esc_attr( $result->qr_uri ) . '" />or '
-    : '';
-$block_content = '<div ' . get_block_wrapper_attributes() . '>' . $qr_content . 'click <a href="' . esc_url( $result->request_uri ) . '">link</a></div>';
+$allowed_protocols = array( 'http', 'https', 'openid4vp', 'haip', 'mdoc-openid4vp', 'eudi-openid4vp' );
+$request_uri = esc_url( $result->request_uri, $allowed_protocols );
 
-echo wp_kses_post( $block_content );
+echo '<div ' . get_block_wrapper_attributes() . '>';
+if ( $attributes['qrCodeEnabled'] ) {
+    echo '<img id="openid4vp_qrImage" alt="" src="' . esc_attr( $result->qr_uri ) . '" />or ';
+}
+echo 'click <a href="' . $request_uri . '">link</a></div>';
 
