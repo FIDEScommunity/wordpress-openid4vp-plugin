@@ -3,9 +3,9 @@
 	"apiVersion": 3,
 	"name": "universal-openid4vp-plugin/openid4vp-exchange-org-wallet",
 	"version": "0.1.0",
-	"title": "OID4VP – Request data from organizational wallet",
+	"title": "OID4VP – Request data from business wallet",
 	"category": "widgets",
-	"description": "Start a presentation exchange flow with the organization wallet",
+	"description": "Start a presentation exchange flow with the business wallet",
 	"example": {},
 	"attributes": {
 		"openidEndpoint": {
@@ -49,7 +49,7 @@
 			"fontSize": true
 		}
 	},
-	"textdomain": "openid4vp-exchange-org-wallet",
+	"textdomain": "universal-openid4vp",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",

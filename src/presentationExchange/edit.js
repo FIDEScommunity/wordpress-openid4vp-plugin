@@ -54,11 +54,11 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'openid4vp-exchange' ) }>
+				<PanelBody title={ __( 'Settings', 'universal-openid4vp' ) }>
 					<TextControl
 						label={ __(
 							'Query id',
-							'openid4vp-exchange'
+							'universal-openid4vp'
 						) }
 						value={ queryId }
 						onChange={ ( value ) =>
@@ -68,7 +68,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __(
 							'Success url',
-							'openid4vp-exchange'
+							'universal-openid4vp'
 						) }
 						value={ successUrl }
 						onChange={ ( value ) =>
@@ -81,7 +81,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'OpenID4VP Endpoint',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ openidEndpoint }
 					onChange={ ( value ) =>
@@ -113,7 +113,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Client id',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ clientId }
 					onChange={ ( value ) =>
@@ -123,7 +123,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Request URI method',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ requestUriMethod }
 					onChange={ ( value ) =>
@@ -133,7 +133,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Response type',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ responseType }
 					onChange={ ( value ) =>
@@ -143,7 +143,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<TextControl
 					label={ __(
 						'Response mode',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ responseMode }
 					onChange={ ( value ) =>
@@ -153,7 +153,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				<ToggleControl
 					label={ __(
 						'QR code',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					help={
 						qrCodeEnabled
@@ -169,7 +169,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __(
 							'QR size',
-							'openid4vp-exchange'
+							'universal-openid4vp'
 						) }
 						value={ qrSize }
 						onChange={ ( value ) =>
@@ -181,7 +181,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 					label={ __(
 						'QR color dark',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ qrColorDark }
 					onChange={ ( value ) =>
@@ -192,7 +192,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ qrCodeEnabled && <TextControl
 					label={ __(
 						'QR color light',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ qrColorLight }
 					onChange={ ( value ) =>
@@ -202,7 +202,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				{ qrCodeEnabled && <TextControl
 					label={ __(
 						'QR padding',
-						'openid4vp-exchange'
+						'universal-openid4vp'
 					) }
 					value={ qrPadding }
 					onChange={ ( value ) =>

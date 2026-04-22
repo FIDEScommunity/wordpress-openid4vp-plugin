@@ -54,11 +54,11 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={__('Settings', 'openid4vp-attribute')}>
+				<PanelBody title={__('Settings', 'universal-openid4vp')}>
 					<TextControl
 						label={ __(
 							'Credential query id',
-							'openid4vp-attribute'
+							'universal-openid4vp'
 						) }
 						value={ credentialQueryId }
 						onChange={ ( value ) =>
@@ -68,7 +68,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __(
 							'VP attribute label',
-							'openid4vp-attribute'
+							'universal-openid4vp'
 						) }
 						value={ attributeLabel }
 						onChange={ ( value ) =>
@@ -78,7 +78,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __(
 							'VP attribute name',
-							'openid4vp-attribute'
+							'universal-openid4vp'
 						) }
 						value={ attributeName }
 						onChange={ ( value ) =>

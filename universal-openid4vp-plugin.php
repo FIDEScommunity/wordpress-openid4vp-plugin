@@ -4,11 +4,11 @@
  * Description:       Retrieve verifiable presentations
  * Version:           0.7.0
  * Requires at least: 6.6
- * Requires PHP:      7.3
+ * Requires PHP:      7.4
  * Author:            Credenco
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       openid4vp-exchange
+ * Text Domain:       universal-openid4vp
  *
  * @package           create-block
  */
@@ -22,6 +22,9 @@ if ( ! defined( 'UNIVERSAL_OPENID4VP_PLUGIN_URL' ) ) {
 }
 if (!defined('UNIVERSAL_OPENID4VP_PLUGIN_DIR')) {
     define('UNIVERSAL_OPENID4VP_PLUGIN_DIR', trailingslashit(plugin_dir_path(__FILE__)));
+}
+if ( ! defined( 'UNIVERSAL_OPENID4VP_PLUGIN_VERSION' ) ) {
+    define( 'UNIVERSAL_OPENID4VP_PLUGIN_VERSION', '0.7.0' );
 }
 
 require_once(UNIVERSAL_OPENID4VP_PLUGIN_DIR . 'build/OpenID4VP.php');
@@ -67,8 +70,13 @@ function universal_openid4vp_login_form_button() {
  * Enqueues our scripts
  */
 function universal_openid4vp_enqueue_personal_wallet_scripts() {
-    // Enqueue our script, using the jQuery dependency
-    wp_enqueue_script( 'pollStatus', UNIVERSAL_OPENID4VP_PLUGIN_URL . '/build/presentationExchange/dummy.js', array( 'jquery' ));
+    wp_enqueue_script(
+        'pollStatus',
+        UNIVERSAL_OPENID4VP_PLUGIN_URL . '/build/presentationExchange/dummy.js',
+        array( 'jquery' ),
+        UNIVERSAL_OPENID4VP_PLUGIN_VERSION,
+        true
+    );
     wp_localize_script(
         'pollStatus',
         'my_ajax_obj',
@@ -80,8 +88,13 @@ function universal_openid4vp_enqueue_personal_wallet_scripts() {
 }
 
 function universal_openid4vp_enqueue_org_wallet_scripts() {
-    // Enqueue our script, using the jQuery dependency
-    wp_enqueue_script( 'submitPresentationRequest', UNIVERSAL_OPENID4VP_PLUGIN_URL . '/build/presentationExchange/dummy.js', array( 'jquery' ));
+    wp_enqueue_script(
+        'submitPresentationRequest',
+        UNIVERSAL_OPENID4VP_PLUGIN_URL . '/build/presentationExchange/dummy.js',
+        array( 'jquery' ),
+        UNIVERSAL_OPENID4VP_PLUGIN_VERSION,
+        true
+    );
     wp_localize_script(
         'submitPresentationRequest',
         'my_ajax_obj',
@@ -95,8 +108,8 @@ function universal_openid4vp_enqueue_org_wallet_scripts() {
 add_action( 'init', 'universal_openid4vp_create_block_init' );
 // Display the Login button at the top of the WP Login form
 add_action('login_message', 'universal_openid4vp_login_form_button');
-// Add an action to call our script enqueuing function
-add_action( 'wp_enqueue_script', 'universal_openid4vp_enqueue_personal_wallet_scripts' );
+// Manually fired from the block render callback after a presentation request is prepared
+add_action( 'universal_openid4vp_enqueue_personal_wallet_scripts_action', 'universal_openid4vp_enqueue_personal_wallet_scripts' );
 
 add_action( 'wp_ajax_nopriv_universal_openid4vp_poll_status_ajax', 'universal_openid4vp_ajax_poll_status' );
 add_action( 'wp_ajax_universal_openid4vp_poll_status_ajax', 'universal_openid4vp_ajax_poll_status' );
@@ -242,8 +255,13 @@ function universal_openid4vp_sendVpRequest($attributes) {
     }
     $authenticationResult = json_decode( wp_remote_retrieve_body($response) );
 
-    $body = array('query_id' => $attributes['queryId']);
+    $body = array( 'query_id' => $attributes['queryId'] );
+    // Nonce is verified by check_ajax_referer() in the calling AJAX handler
+    // (universal_openid4vp_ajax_org_wallet_presentation_exchange). On the
+    // personal-wallet render path this function runs under GET, so $_POST is empty.
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing
     if ( isset( $_POST['walletUrl'] ) ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $body['request_uri_base'] = esc_url_raw( wp_unslash( $_POST['walletUrl'] ) );
     }
     if (array_key_exists('requestUriMethod', $attributes)) {

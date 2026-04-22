@@ -45,8 +45,8 @@ class Universal_OpenID4VP {
     }
 
     public function logout() {
-        wp_redirect(home_url());
-        exit();
+        wp_safe_redirect( home_url() );
+        exit;
     }
 
     public function wp_enqueue() {

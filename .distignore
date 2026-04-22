@@ -1,0 +1,43 @@
+# Files and directories that must not ship inside the plugin zip.
+# `@wordpress/scripts plugin-zip` and wordpress.org's distribution tools
+# respect these ignore rules.
+
+# VCS and editor metadata
+.git
+.github
+.gitignore
+.gitattributes
+.idea
+.vscode
+.DS_Store
+
+# Node / build tooling
+node_modules
+package.json
+package-lock.json
+yarn.lock
+webpack.config.js
+.wp-env.json
+
+# Source (only build/ ships)
+src
+
+# Tests / CI
+tests
+phpunit.xml
+phpunit.xml.dist
+.phpcs.xml
+.phpcs.xml.dist
+phpcs.xml
+phpcs.xml.dist
+
+# Local artifacts
+.playwright-mcp
+*.png
+*.log
+*.map
+
+# Markdown readme (readme.txt is the canonical one)
+readme.md
+README.md
+CHANGELOG.md

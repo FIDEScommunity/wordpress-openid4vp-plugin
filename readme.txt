@@ -2,13 +2,13 @@
 Contributors:      credenco
 Tags:              openid4vp, verifiable-credentials, sso, login, identity
 Requires at least: 6.6
-Tested up to:      6.6
-Requires PHP:      7.3
+Tested up to:      6.9
+Requires PHP:      7.4
 Stable tag:        0.7.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Retrieve verifiable presentations from a personal or organizational wallet using the OpenID for Verifiable Presentations (OpenID4VP) flow.
+Retrieve verifiable presentations from a personal or business wallet using the OpenID for Verifiable Presentations (OpenID4VP) flow.
 
 == Description ==
 
@@ -18,7 +18,7 @@ The plugin adds:
 
 * A settings page where the site administrator configures the OpenID4VP and token endpoints, API client credentials, and optional wallet-based login behaviour.
 * A block that starts a presentation exchange with a personal wallet (QR code or link).
-* A block that starts a presentation exchange with an organizational wallet.
+* A block that starts a presentation exchange with a business wallet.
 * A block that displays an attribute obtained from a received presentation.
 * An optional "Login with Personal Wallet" button on the standard WordPress login form.
 
