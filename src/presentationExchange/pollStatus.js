@@ -27,6 +27,7 @@
         // Here, I am adding the text of the #votes element
         var data = {
             action: "universal_openid4vp_poll_status_ajax",
+            nonce: my_ajax_obj.nonce,
             current: window.location.href
         };
         // Send a POST request to the ajaxurl (WordPress variable), using the data

@@ -1,58 +1,44 @@
-=== Copyright Date Block ===
-Contributors:      Credenco B.V.
-Tags:              block
+=== Universal OID4VP ===
+Contributors:      credenco
+Tags:              openid4vp, verifiable-credentials, sso, login, identity
+Requires at least: 6.6
 Tested up to:      6.6
+Requires PHP:      7.3
 Stable tag:        0.7.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
-Display your site&#39;s copyright date.
+Retrieve verifiable presentations from a personal or organizational wallet using the OpenID for Verifiable Presentations (OpenID4VP) flow.
 
 == Description ==
 
-This is the long description. No limit, and you can use Markdown (as well as in the following sections).
+Universal OID4VP lets a WordPress site request and consume verifiable credentials from a user's digital wallet over the OpenID for Verifiable Presentations (OpenID4VP) protocol.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+The plugin adds:
+
+* A settings page where the site administrator configures the OpenID4VP and token endpoints, API client credentials, and optional wallet-based login behaviour.
+* A block that starts a presentation exchange with a personal wallet (QR code or link).
+* A block that starts a presentation exchange with an organizational wallet.
+* A block that displays an attribute obtained from a received presentation.
+* An optional "Login with Personal Wallet" button on the standard WordPress login form.
+
+== External services ==
+
+This plugin communicates with an OpenID4VP backend that you configure in the plugin settings (for example `https://wallet.acc.credenco.com`) and with a token endpoint (for example a Keycloak `/protocol/openid-connect/token` URL). Both URLs are chosen by the site administrator. No data is sent to those services until a visitor actively uses a wallet block or the wallet login button.
+
+The data exchanged with the configured endpoints includes the API client credentials entered on the settings page, the query identifier configured on the block, and — for responses — the verifiable presentation returned by the wallet.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload the plugin files to the `/wp-content/plugins/openid4vp-block` directory, or install the plugin through the WordPress plugins screen directly.
-1. Activate the plugin through the 'Plugins' screen in WordPress
-
-
-== Frequently Asked Questions ==
-
-= A question that someone might have =
-
-An answer to that question.
-
-= What about foo bar? =
-
-Answer to foo bar dilemma.
-
-== Screenshots ==
-
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Upload the plugin zip via the "Plugins" screen in WordPress, or extract it to `/wp-content/plugins/universal-openid4vp-plugin`.
+2. Activate the plugin through the "Plugins" screen.
+3. Go to Settings -> Universal OID4VP and fill in the OpenID4VP endpoint, token endpoint, API client id and secret.
+4. Add one of the Universal OID4VP blocks to a page to start a presentation exchange.
 
 == Changelog ==
 
+= 0.7.0 =
+* Maintenance release: hardening for wordpress.org submission (input sanitization, output escaping, nonces on AJAX endpoints, readme).
+
 = 0.1.0 =
-* Release
-
-= 0.2.0 =
-* Release
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above. This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation." Arbitrary sections will be shown below the built-in sections outlined above.
+* Initial release.

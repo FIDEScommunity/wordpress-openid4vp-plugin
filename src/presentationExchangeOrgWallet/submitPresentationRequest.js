@@ -6,6 +6,7 @@
 
             var data = {
                 action: "universal_openid4vp_presentation_exchange_ajax",
+                nonce: my_ajax_obj.nonce,
                 walletUrl: walletUrl
             };
 

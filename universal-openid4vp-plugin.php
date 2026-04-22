@@ -4,7 +4,7 @@
  * Description:       Retrieve verifiable presentations
  * Version:           0.7.0
  * Requires at least: 6.6
- * Requires PHP:      7.2
+ * Requires PHP:      7.3
  * Author:            Credenco
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -25,6 +25,7 @@ if (!defined('UNIVERSAL_OPENID4VP_PLUGIN_DIR')) {
 }
 
 require_once(UNIVERSAL_OPENID4VP_PLUGIN_DIR . 'build/OpenID4VP.php');
+require_once(UNIVERSAL_OPENID4VP_PLUGIN_DIR . 'build/openid4vp-session.php');
 
 $openid4vp = new Universal_OpenID4VP();
 
@@ -45,9 +46,6 @@ function universal_openid4vp_create_block_init() {
    register_block_type( __DIR__ . '/build/presentationExchange' );
    register_block_type( __DIR__ . '/build/presentationExchangeOrgWallet' );
    register_block_type( __DIR__ . '/build/presentationAttribute' );
-    if(!session_id()) {
-        session_start();
-    }
 }
 
 function universal_openid4vp_login_form_button() {
@@ -76,6 +74,7 @@ function universal_openid4vp_enqueue_personal_wallet_scripts() {
         'my_ajax_obj',
         array(
             'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce'    => wp_create_nonce( 'universal_openid4vp_ajax' ),
         )
     );
 }
@@ -88,15 +87,11 @@ function universal_openid4vp_enqueue_org_wallet_scripts() {
         'my_ajax_obj',
         array(
             'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce'    => wp_create_nonce( 'universal_openid4vp_ajax' ),
         )
     );
 }
 
-add_action( 'init', function() {
-    register_block_type( __DIR__, array(
-        'script' => array( 'jquery' ) // makes sure jQuery loads
-    ) );
-} );
 add_action( 'init', 'universal_openid4vp_create_block_init' );
 // Display the Login button at the top of the WP Login form
 add_action('login_message', 'universal_openid4vp_login_form_button');
@@ -114,15 +109,19 @@ add_action( 'wp_ajax_universal_openid4vp_presentation_exchange_ajax', 'universal
  * back to the client script as JSON.
  */
 function universal_openid4vp_ajax_poll_status() {
-    // Get the 'current' data that the AJAX call sent
-    if ( isset( $_POST['current'] ) ) {
-        $current = $_POST['current'];
-    }
+    check_ajax_referer( 'universal_openid4vp_ajax', 'nonce' );
+
+    $current = isset( $_POST['current'] )
+        ? esc_url_raw( wp_unslash( $_POST['current'] ) )
+        : '';
 
     $options = new Universal_OpenID4VP_Admin_Options();
 
-    $response = wp_remote_get( $_SESSION['presentationStatusUri'], array(
-        'headers' => array('Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $_SESSION['accessToken'] ),
+    $presentationStatusUri = universal_openid4vp_session_get( 'presentationStatusUri' );
+    $accessToken           = universal_openid4vp_session_get( 'accessToken' );
+
+    $response = wp_remote_get( $presentationStatusUri, array(
+        'headers' => array('Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $accessToken ),
         'timeout'     => 45,
         'redirection' => 5,
         'blocking'    => true
@@ -134,22 +133,22 @@ function universal_openid4vp_ajax_poll_status() {
     $presentationResponse = json_decode( $body, true);
 
     if ( $presentationResponse['status'] === 'authorization_response_verified'  ) {
-        $successUrl = $_SESSION['successUrl'];
-
-        error_log($body);
+        $successUrl = universal_openid4vp_session_get( 'successUrl' );
 
         $credentialClaims = $presentationResponse['verified_data']['credential_claims'];
-        foreach ($credentialClaims as $credential) {
-            if (empty($_SESSION['presentationResponse'])) {
-                $_SESSION['presentationResponse'] = [];
-            }
-            $_SESSION['presentationResponse'][$credential['id']] = $credential;
+        $storedPresentationResponse = universal_openid4vp_session_get( 'presentationResponse', array() );
+        if ( ! is_array( $storedPresentationResponse ) ) {
+            $storedPresentationResponse = array();
         }
+        foreach ($credentialClaims as $credential) {
+            $storedPresentationResponse[ $credential['id'] ] = $credential;
+        }
+        universal_openid4vp_session_set( 'presentationResponse', $storedPresentationResponse );
 
         if ($options->loginUrl == $current) {
             $jsonAttributeNames = explode(".", $options->usernameAttribute);
 
-            $result = $_SESSION['presentationResponse'];
+            $result = $storedPresentationResponse;
             foreach ($jsonAttributeNames as &$name) {
                 $result = $result[$name];
             }
@@ -173,19 +172,19 @@ function universal_openid4vp_ajax_poll_status() {
             }
         }
 
-        $_SESSION['accessToken'] = null;
-        $_SESSION['successUrl'] = null;
+        universal_openid4vp_session_delete( 'accessToken' );
+        universal_openid4vp_session_delete( 'successUrl' );
     }
 
     // Prepare the data to sent back to Javascript
     $data = array(
-        'presentationStatusUri'    =>    $_SESSION['presentationStatusUri'],
-        'configuredSuccessUrl' => $_SESSION['successUrl'],
+        'presentationStatusUri'    =>    $presentationStatusUri,
+        'configuredSuccessUrl' => universal_openid4vp_session_get( 'successUrl' ),
         'successUrl' => $successUrl
     );
 
     // Encode it as JSON and send it back
-    echo json_encode( $data );
+    echo wp_json_encode( $data );
     die();
 }
 
@@ -194,16 +193,18 @@ function universal_openid4vp_ajax_poll_status() {
  * back to the client script as JSON.
  */
 function universal_openid4vp_ajax_org_wallet_presentation_exchange() {
-   $attributes = $_SESSION['queryAttributes'];
+   check_ajax_referer( 'universal_openid4vp_ajax', 'nonce' );
+
+   $attributes = universal_openid4vp_session_get( 'queryAttributes', array() );
 
    $response = universal_openid4vp_sendVpRequest($attributes);
 
    if ($response["success"] === false) {
-      echo $response["error"];
+      echo wp_kses_post( $response["error"] );
       return;
    }
 
-   echo json_encode($response["result"]);
+   echo wp_json_encode( $response["result"] );
 
    die();
 }
@@ -243,7 +244,7 @@ function universal_openid4vp_sendVpRequest($attributes) {
 
     $body = array('query_id' => $attributes['queryId']);
     if ( isset( $_POST['walletUrl'] ) ) {
-        $body['request_uri_base'] = $_POST['walletUrl'];
+        $body['request_uri_base'] = esc_url_raw( wp_unslash( $_POST['walletUrl'] ) );
     }
     if (array_key_exists('requestUriMethod', $attributes)) {
         $body['request_uri_method'] = $attributes['requestUriMethod'];
@@ -282,7 +283,7 @@ function universal_openid4vp_sendVpRequest($attributes) {
         'timeout'     => 45,
         'redirection' => 5,
         'blocking'    => true,
-        'body'        => json_encode($body)
+        'body'        => wp_json_encode($body)
     ));
 
     if (is_wp_error($response)) {
@@ -294,22 +295,22 @@ function universal_openid4vp_sendVpRequest($attributes) {
     $result = json_decode( $body );
 
     if ( json_last_error() !== JSON_ERROR_NONE ) {
-        $block_content = '<div ' . get_block_wrapper_attributes() . '><p>JSON decode fout: ' . json_last_error_msg().'</p></div>';
+        $block_content = '<div ' . get_block_wrapper_attributes() . '><p>JSON decode fout: ' . esc_html( json_last_error_msg() ) . '</p></div>';
         return ["success" => false, "error" => $block_content];
     }
 
     // Controleer op fout in de API response zelf (bijv. foutcode of foutbericht)
     if ( isset( $result->status ) && isset( $result->detail ) ) {
-        $block_content = '<div ' . get_block_wrapper_attributes() . '><p>API fout: ' . $result->detail.'</p></div>';
+        $block_content = '<div ' . get_block_wrapper_attributes() . '><p>API fout: ' . esc_html( $result->detail ) . '</p></div>';
         return ["success" => false, "error" => $block_content];
     }
 
-    // store the correlation id in the SESSION
-    $_SESSION['correlationId'] = $result->correlation_id;
-    $_SESSION['presentationStatusUri'] = $result->status_uri;
-    $_SESSION['accessToken'] = $authenticationResult->access_token;
+    // store the correlation id in the session store
+    universal_openid4vp_session_set( 'correlationId', $result->correlation_id );
+    universal_openid4vp_session_set( 'presentationStatusUri', $result->status_uri );
+    universal_openid4vp_session_set( 'accessToken', $authenticationResult->access_token );
     if (array_key_exists('successUrl', $attributes)) {
-        $_SESSION['successUrl'] = wp_sanitize_redirect($attributes['successUrl']);
+        universal_openid4vp_session_set( 'successUrl', wp_sanitize_redirect( $attributes['successUrl'] ) );
     }
 
    return ["success" => true, "result" => $result];

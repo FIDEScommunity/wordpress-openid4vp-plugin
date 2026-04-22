@@ -9,11 +9,6 @@
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
-// do a session a start
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 $options = new Universal_OpenID4VP_Admin_Options();
 $openidEndpoint = $options->openidEndpoint;
 $authenticationHeaderName = $options->authenticationHeaderName;
@@ -24,13 +19,13 @@ if (!empty($attributes['openidEndpoint'])) {
     $authenticationToken = $attributes['authenticationToken'];
 }
 
-$_SESSION['openidEndpoint'] = $openidEndpoint;
-$_SESSION['authenticationHeaderName'] = $authenticationHeaderName;
-$_SESSION['authenticationToken'] = $authenticationToken;
-$_SESSION['queryAttributes'] = $attributes;
+universal_openid4vp_session_set( 'openidEndpoint', $openidEndpoint );
+universal_openid4vp_session_set( 'authenticationHeaderName', $authenticationHeaderName );
+universal_openid4vp_session_set( 'authenticationToken', $authenticationToken );
+universal_openid4vp_session_set( 'queryAttributes', $attributes );
 
 if (array_key_exists('successUrl', $attributes)) {
-    $_SESSION['successUrl'] = wp_sanitize_redirect($attributes['successUrl']);
+    universal_openid4vp_session_set( 'successUrl', wp_sanitize_redirect( $attributes['successUrl'] ) );
 }
 
 do_action( 'submitPresentationRequest' );
